@@ -1,0 +1,39 @@
+#!/usr/bin/env bash
+
+if [[ $# -eq 0 ]] ; then
+    echo '*******************************************************'
+    echo 'Welcome to Project XYZ'
+    echo '---- User Manual ----'
+    echo 'Type ./xyz cloneall to clone all components'
+    echo 'Type ./xyz dockerup to bring all containers up'
+    echo 'Type ./xyz dbcreate to create the database'
+    echo '*******************************************************'
+fi
+
+if [ "$1" = "cloneall" ]; then
+    git clone git@github.com:kcchanweb/xyz-project.git &&
+    git clone git@github.com:kcchanweb/xyz-external.git &&
+    git clone git@github.com:kcchanweb/xyz-user.git &&
+    git clone git@github.com:kcchanweb/xyz-invoice.git &&
+    git clone git@github.com:kcchanweb/xyz-message.git &&
+    git clone git@github.com:kcchanweb/xyz-frontend.git
+fi
+
+if [ "$1" = "dockerup" ]; then
+    docker-compose up -d
+fi
+
+if [ "$1" = "dbcreate" ]; then
+    docker exec -i xyz-db mysql -uroot -proot <<< "create database xyz;" &&
+    docker exec -t xyz-db mysql -uroot xyz -proot < db/schema.sql
+fi
+
+if [ "$1" = "updateall" ]; then
+    cd xyz-project && git pull &&
+    cd xyz-external && git pull &&
+    cd xyz-message && git pull &&
+    cd xyz-invoice && git pull &&
+    cd xyz-user && git pull &&
+    cd xyz-frontend && git pull &&
+    cd ..
+fi

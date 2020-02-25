@@ -1,0 +1,48 @@
+version: "3.7"
+
+networks:
+  backend:
+    driver: bridge
+    ipam:
+      config:
+        - subnet: "169.254.170.1/24"
+  frontend:
+    driver: bridge
+    ipam:
+      config:
+        - subnet: "169.254.170.1/24"
+
+services:
+  db:
+    container_name: xyz-db
+    image: mysql:8.0
+    env_file: ./db/db.env
+    ports:
+      - "33063:3306"
+    command: mysqld --sql_mode=""
+
+  frontend:
+    container_name: xyz-frontend
+    build:
+      context: ./xyz-frontend
+      dockerfile: Dockerfile
+    volumes:
+      - './xyz-frontend/src:/app'
+      - '/app/node_modules'
+    ports:
+      - '8081:8081'
+
+  user:
+    container_name: xyz-user
+    build:
+      context: ./xyz-user
+      dockerfile: Dockerfile
+    command: python manage.py runserver 0.0.0.0:8000
+    volumes:
+      - './xyz-user/src:/code'
+    ports:
+      - '8082:8082'
+    depends_on:
+      - db
+
+
